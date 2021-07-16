@@ -1,12 +1,24 @@
-import java.util.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.sql.*;
-
-public class DemoSistema {
+public class Funcion {
 	//propiedades
 	private JButton acciones[] = new JButton[8];
 	private DefaultTableModel modelo = new DefaultTableModel();
@@ -31,22 +43,9 @@ public class DemoSistema {
 		ResultSet rs;
 		try {
 			st = mysql.getConn().createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			rs = st.executeQuery("select * from Tipo_Servicio");
-			int est_reg=0;
-			String auxstr="";
+			rs = st.executeQuery("select * from Funcion");
 			while(rs.next()) {
-				est_reg=rs.getInt("TipSerEstReg");
-				if(est_reg==1) {
-					auxstr="A";
-				}else {
-					if(est_reg==2) {
-						auxstr="I";
-					}
-					else {
-						auxstr="*";
-					}
-				}
-				Object[] aux= {rs.getInt("TipSerCod"),rs.getString("TipSerDes"),auxstr};
+				Object[] aux= {rs.getInt("FunCod"),rs.getString("FunDes"),rs.getString("FunEstReg")};
 				modelo.addRow(aux);
 			}
 			mysql.getConn().close();
@@ -61,7 +60,7 @@ public class DemoSistema {
 		JFrame ventana= new JFrame();
 		//propiedades de la ventana
 		ventana.setSize(550, 550);
-		ventana.setTitle("Tipo de Servicio");
+		ventana.setTitle("Función");
 		ventana.setDefaultCloseOperation(ventana.DO_NOTHING_ON_CLOSE);
 		ventana.setLocationRelativeTo(null);
 		ventana.setLayout( new GridLayout(3,1,0,10));
@@ -76,7 +75,7 @@ public class DemoSistema {
 		JPanel containerInput = new JPanel();
 		containerInput.setLayout(null);
 		JLabel subtitleA= new JLabel();
-		subtitleA.setText("Registro Tipo Servicio");
+		subtitleA.setText("Registro Función");
 		JPanel containerHead1= new JPanel();
 		containerHead1.setLayout(new BorderLayout());
 		containerHead1.add(new JLabel("  "),BorderLayout.WEST);
@@ -124,7 +123,7 @@ public class DemoSistema {
 		contenedorTable.add(new JScrollPane(tablaData),BorderLayout.CENTER);
 		//subtitulo
 		JLabel subtitleB= new JLabel();
-		subtitleB.setText("Tabla_Tipo_Servicio");
+		subtitleB.setText("Tabla_Funcion");
 		JPanel containerHead2= new JPanel();
 		containerHead2.setLayout(new BorderLayout());
 		containerHead2.add(new JLabel("  "),BorderLayout.WEST);
@@ -196,17 +195,17 @@ public class DemoSistema {
 							ConeccionMYSQL mysql = new ConeccionMYSQL();
 							PreparedStatement st;
 							//datos de los inputs
-							int cod,est_reg;
-							String des;
+							int cod;
+							String des,est_reg;
 							cod=Integer.parseInt(input_cod.getText());
-							est_reg=1;
 							des=input_des.getText();
+							est_reg=input_est_reg.getText();
 							Object[] newRow= {cod,des,"A"};
 							try {
-								st= mysql.getConn().prepareStatement("INSERT INTO Tipo_Servicio VALUES(?,?,?)");
+								st= mysql.getConn().prepareStatement("INSERT INTO Funcion VALUES(?,?,?)");
 								st.setInt(1,cod);
 								st.setString(2,des);
-								st.setInt(3,est_reg);
+								st.setString(3,est_reg);
 								// insertamos registro
 								int rs= st.executeUpdate();
 								modelo.addRow(newRow);
@@ -233,7 +232,7 @@ public class DemoSistema {
 							int codFila=Integer.parseInt(input_cod.getText());
 							String desFila=input_des.getText();
 							try {
-								st= mysql.getConn().prepareStatement("UPDATE Tipo_Servicio SET TipSerDes=? WHERE TipSerCod=?");
+								st= mysql.getConn().prepareStatement("UPDATE Funcion SET FunDes=? WHERE FunCod=?");
 								st.setString(1,desFila);
 								st.setInt(2, codFila);
 								int retorno = st.executeUpdate();
@@ -260,8 +259,8 @@ public class DemoSistema {
 						if(fila>=0) {
 							int codFila=Integer.parseInt(input_cod.getText());
 							try {
-								st= mysql.getConn().prepareStatement("UPDATE Tipo_Servicio SET TipSerEstReg=? WHERE TipSerCod=?");
-								st.setInt(1,3);
+								st= mysql.getConn().prepareStatement("UPDATE Funcion SET FunEstReg=? WHERE FunCod=?");
+								st.setString(1,"*");
 								st.setInt(2, codFila);
 								int retorno = st.executeUpdate();
 								//aplicamos los cambios en el modelo
@@ -287,8 +286,8 @@ public class DemoSistema {
 						if(fila>=0) {
 							int codFila=Integer.parseInt(input_cod.getText());
 							try {
-								st= mysql.getConn().prepareStatement("UPDATE Tipo_Servicio SET TipSerEstReg=? WHERE TipSerCod=?");
-								st.setInt(1,2);
+								st= mysql.getConn().prepareStatement("UPDATE Funcion SET FunEstReg=? WHERE FunCod=?");
+								st.setString(1,"I");
 								st.setInt(2, codFila);
 								int retorno = st.executeUpdate();
 								//aplicamos los cambios en el modelo
@@ -314,8 +313,8 @@ public class DemoSistema {
 						if(fila>=0) {
 							int codFila=Integer.parseInt(input_cod.getText());
 							try {
-								st= mysql.getConn().prepareStatement("UPDATE Tipo_Servicio SET TipSerEstReg=? WHERE TipSerCod=?");
-								st.setInt(1,1);
+								st= mysql.getConn().prepareStatement("UPDATE Funcion SET FunEstReg=? WHERE FunCod=?");
+								st.setString(1,"A");
 								st.setInt(2, codFila);
 								int retorno = st.executeUpdate();
 								//aplicamos los cambios en el modelo
@@ -340,6 +339,9 @@ public class DemoSistema {
 					input_des.setEditable(true);
 					input_est_reg.setText("");
 					input_est_reg.setEditable(true);
+				}
+				else {
+					JOptionPane.showMessageDialog(null, "Seleccione una acción");
 				}
 			}
 		});
@@ -550,11 +552,13 @@ public class DemoSistema {
 			}
 		});
 	}
-	
-	public DemoSistema() {
-		menuIngreso();
+	public Funcion() {
+		//menuIngreso();
+		setDataReferencial();
+		tipoServicioAdmin();
 	}
 	public static void main(String[] args) {
-		new DemoSistema();
+		new Funcion();
 	}
+	
 }
